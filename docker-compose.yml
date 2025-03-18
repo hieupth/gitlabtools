@@ -1,0 +1,71 @@
+networks:
+  gitlabnetwork:
+    name: gitlabnetwork 
+
+secrets:
+  ssl_ca_file:
+    file: ${SSL_CA_FILE_ORI}
+  ssl_key_file:
+    file: ${SSL_KEY_FILE_ORI}
+  ssl_cert_file:
+    file: ${SSL_CERT_FILE_ORI}
+  ssl_fullchain_file:
+    file: ${SSL_FULLCHAIN_FILE_ORI}
+  frp_config_file:
+    file: ${FRP_CONFIG_FILE_ORI}
+
+services:
+  tunnel:
+    image: hieupth/frp:client
+    container_name: gitlabtunnel
+    restart: always
+    networks:
+      - gitlabnetwork
+    env_file:
+      - .env
+    depends_on:
+      - nginx
+    links:
+      - nginx:nginx
+    secrets:
+      - ssl_ca_file
+      - ssl_key_file
+      - ssl_cert_file
+      - ssl_fullchain_file
+      - frp_config_file
+    logging:
+      options:
+        max-size: "10m"
+  #
+  nginx:
+    image: nginx:stable
+    container_name: gitlabnginx
+    restart: always
+    networks:
+      - gitlabnetwork
+    depends_on:
+      - gitlab
+    links:
+      - gitlab:gitlab
+    env_file:
+      - .env
+    secrets:
+      - ssl_ca_file
+      - ssl_key_file
+      - ssl_cert_file
+      - ssl_fullchain_file
+    volumes:
+      - ./nginx:/etc/nginx
+  #
+  gitlab:
+    image: gitlab/gitlab-${GITLAB_CE_VERSION}
+    container_name: gitlab
+    restart: unless-stopped
+    networks:
+      - gitlab_network
+    env_file:
+      - .env
+    volumes:
+      - ./gitlab/config:/etc/gitlab
+      - ./gitlab/logs:/var/log/gitlab
+      - ./gitlab/data:/var/opt/gitlab

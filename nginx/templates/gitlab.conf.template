@@ -1,0 +1,50 @@
+server {
+    ## Enable HTTP/2.
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name gitlab.${HOSTNAME};
+
+    ## TLS certification.
+    ssl_certificate ${SSL_CERT_FILE};
+    ssl_certificate_key ${SSL_KEY_FILE};
+    ssl_trusted_certificate ${SSL_CA_FILE};
+
+    location / {
+      proxy_pass http://gitlab:80/;
+    }
+}
+
+server {
+    ## Enable HTTP/2.
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name gitlab-registry.${HOSTNAME};
+
+    ## TLS certification.
+    ssl_certificate ${SSL_CERT_FILE};
+    ssl_certificate_key ${SSL_KEY_FILE};
+    ssl_trusted_certificate ${SSL_CA_FILE};
+
+    location / {
+      proxy_pass http://gitlab:5000/;
+    }
+}
+
+server {
+    ## Enable HTTP/2.
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name gitlab-pages.${HOSTNAME};
+
+    ## TLS certification.
+    ssl_certificate ${SSL_CERT_FILE};
+    ssl_certificate_key ${SSL_KEY_FILE};
+    ssl_trusted_certificate ${SSL_CA_FILE};
+
+    location / {
+      proxy_pass http://gitlab:8090/;
+    }
+}

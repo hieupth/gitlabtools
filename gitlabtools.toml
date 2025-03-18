@@ -1,0 +1,7 @@
+[[proxies]]
+name = "gitlabtools"
+type = "https"
+localIP = "nginx"
+localPort = 80
+customDomains = ["gitlab.${{.Envs.HOSTNAME}}", "gitlab-registry.${{.Envs.HOSTNAME}}", "gitlab-pages.${{.Envs.HOSTNAME}}"]
+transport.proxyProtocolVersion = "v2"
